@@ -1,26 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .api.routes import api_router
+from .core.config import get_settings
 from .database import Base, engine
-from .routes import router
+from .startup import seed_admin
 
-app = FastAPI()
+settings = get_settings()
 
-origins = [
-    "https://www.upwork.com",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "*",
-]
+app = FastAPI(title="Job Tracker API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 Base.metadata.create_all(bind=engine)
+seed_admin()
 
-app.include_router(router)
+app.include_router(api_router)
