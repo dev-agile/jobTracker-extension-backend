@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 class ItemBase(BaseModel):
     id: str
     user_id: str
@@ -8,8 +9,8 @@ class ItemBase(BaseModel):
     title: Optional[str] = None
     role: Optional[str] = None
     posted: Optional[str] = None
-    description: Optional[str] = None  
-    skills: Optional[List[str]] = None 
+    description: Optional[str] = None
+    skills: Optional[List[str]] = None
     experience_level: Optional[str] = None
     hourly_range: Optional[str] = None
     hourly: Optional[str] = None
@@ -24,14 +25,35 @@ class ItemBase(BaseModel):
     applied_date: Optional[str] = None
     status: Optional[str] = None
     salary: Optional[str] = None
-    created_at: Optional[str] = None 
-    updated_at: Optional[str] = None  
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
 
 class ItemCreate(ItemBase):
     pass
+
 
 class ItemOut(ItemBase):
     id: str
 
     class Config:
         orm_mode = True
+
+
+class ExtensionJobIn(BaseModel):
+    """Request body from the Chrome extension (camelCase)."""
+
+    id: str | None = None
+    userId: str | None = None
+    jobTitle: str | None = None
+    company: str | None = None
+    jobDetails: str | None = None
+    skills: list[str] | None = None
+    experienceLevel: str | None = None
+    hourlyRange: str | None = None
+    hourly: str | None = None
+    projectLength: str | None = None
+    url: str | None = None
+    appliedAt: str | None = None
+    posted: str | None = None
+    status: str | None = "applied"
