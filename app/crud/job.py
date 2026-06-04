@@ -102,3 +102,51 @@ def count_jobs_by_user_and_status(db: Session, user_id: str) -> dict[str, int]:
         .all()
     )
     return {(status or "unknown").lower(): count for status, count in rows}
+
+
+def count_jobs_by_source(db: Session) -> dict[str, int]:
+    rows = db.query(Jobs.source, func.count(Jobs.id)).group_by(Jobs.source).all()
+    result: dict[str, int] = {}
+    for source, count in rows:
+        key = (source or "unknown").strip() or "unknown"
+        result[key] = count
+    return result
+
+
+def _job_is_complete(job: Jobs) -> bool:
+    title = (job.title or "").strip()
+    url = (job.url or "").strip()
+    applied = (job.applied_date or "").strip()
+    return len(title) >= 3 and bool(url) and bool(applied)
+
+
+def data_quality_for_jobs(jobs: list[Jobs]) -> float:
+    if not jobs:
+        return 100.0
+    complete = sum(1 for job in jobs if _job_is_complete(job))
+    return round(complete / len(jobs) * 100, 1)
+
+
+def global_data_quality_pct(db: Session) -> float:
+    jobs = db.query(Jobs).all()
+    return data_quality_for_jobs(jobs)
+
+
+def get_jobs_for_user(db: Session, user_id: str) -> list[Jobs]:
+    return db.query(Jobs).filter(Jobs.user_id == user_id).all()
+
+
+PIPELINE_STATUSES = ("applied", "screening", "interview", "offer", "rejected", "ghosted")
+RESPONSE_STATUSES = frozenset({"screening", "interview", "offer"})
+
+
+def response_rate_pct(by_status: dict[str, int]) -> float:
+    total = sum(by_status.values())
+    if total == 0:
+        return 0.0
+    progressed = sum(by_status.get(s, 0) for s in RESPONSE_STATUSES)
+    return round(progressed / total * 100, 1)
+
+
+def build_pipeline(by_status: dict[str, int]) -> dict[str, int]:
+    return {status: by_status.get(status, 0) for status in PIPELINE_STATUSES}

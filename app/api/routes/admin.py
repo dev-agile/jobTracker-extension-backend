@@ -10,7 +10,15 @@ from ...crud import job as job_crud
 from ...crud import user as user_crud
 from ...database import get_db
 from ...models import Jobs, User, UserInvite
-from ...schemas.admin import AdminMetrics, InviteCreate, InviteOut, JobOutAdmin, UserSummary
+from ...schemas.admin import (
+    AdminMetrics,
+    InviteCreate,
+    InviteOut,
+    JobDetailAdmin,
+    JobOutAdmin,
+    JobUserContext,
+    UserSummary,
+)
 from ...services.metrics import build_admin_metrics
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -68,6 +76,45 @@ def _to_extension_job(job: Jobs) -> dict:
     }
 
 
+def _to_job_detail_admin(job: Jobs, user: User | None = None) -> JobDetailAdmin:
+    user_ctx = None
+    if user:
+        user_ctx = JobUserContext(
+            id=user.id,
+            email=user.email,
+            display_name=user.display_name,
+            is_active=user.is_active,
+            last_login_at=user.last_login_at,
+        )
+    return JobDetailAdmin(
+        id=job.id,
+        userId=job.user_id,
+        user=user_ctx,
+        profile=job.profile,
+        jobTitle=job.title,
+        company=job.role,
+        jobDetails=job.description,
+        skills=list(job.skills or []),
+        experienceLevel=job.experience_level,
+        hourlyRange=job.hourly_range,
+        hourly=job.hourly,
+        projectLength=job.project_length,
+        hourlyRate=job.hourly_rate,
+        fixedPrice=job.fixed_price,
+        coverLetter=job.cover_letter,
+        location=job.location,
+        connects=job.connects,
+        source=job.source,
+        url=job.url,
+        posted=job.posted,
+        appliedAt=job.applied_date,
+        status=(job.status or "applied").lower(),
+        salary=job.salary,
+        createdAt=job.created_at,
+        updatedAt=job.updated_at,
+    )
+
+
 @router.get("/metrics", response_model=AdminMetrics)
 def admin_metrics(
     _: User = Depends(require_admin),
@@ -96,6 +143,22 @@ def admin_user_jobs(
         raise HTTPException(status_code=404, detail="User not found")
     jobs = job_crud.get_jobs_by_user(db, user_id)
     return [_to_extension_job(j) for j in jobs]
+
+
+@router.get("/users/{user_id}/jobs/{job_id}", response_model=JobDetailAdmin)
+def admin_user_job_detail(
+    user_id: str,
+    job_id: str,
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    user = user_crud.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    job = job_crud.get_job_by_id(db, job_id)
+    if not job or job.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return _to_job_detail_admin(job, user)
 
 
 @router.get("/invites", response_model=list[InviteOut])
