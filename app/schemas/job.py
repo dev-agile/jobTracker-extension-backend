@@ -26,6 +26,7 @@ class ItemBase(BaseModel):
     applied_date: Optional[str] = None
     status: Optional[str] = None
     salary: Optional[str] = None
+    cover_letter: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -53,8 +54,10 @@ class ExtensionJobIn(BaseModel):
     experienceLevel: str | None = None
     hourlyRange: str | None = None
     hourly: str | None = None
+    fixedPrice: str | None = None
     projectLength: str | None = None
     url: str | None = None
+    coverLetter: str | None = None
     appliedAt: str | None = None
     posted: str | None = None
     status: str | None = "applied"

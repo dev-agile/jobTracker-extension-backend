@@ -28,5 +28,6 @@ class Jobs(Base):
     applied_date = Column(String, nullable=True)
     status = Column(String, nullable=True)
     salary = Column(String, nullable=True)
+    cover_letter = Column(String, nullable=True)
     created_at = Column(String, nullable=True)
     updated_at = Column(String, nullable=True)
