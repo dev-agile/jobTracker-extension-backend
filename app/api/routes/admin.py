@@ -19,6 +19,8 @@ from ...schemas.admin import (
     JobUserContext,
     UserSummary,
 )
+from ...schemas.intelligence import IntelligenceReport, MemberDetail
+from ...services.intelligence import build_intelligence, build_member_detail
 from ...services.metrics import build_admin_metrics
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -121,6 +123,30 @@ def admin_metrics(
     db: Session = Depends(get_db),
 ):
     return build_admin_metrics(db)
+
+
+@router.get("/intelligence", response_model=IntelligenceReport)
+def admin_intelligence(
+    year: int | None = None,
+    month: int | None = None,
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return build_intelligence(db, year=year, month=month)
+
+
+@router.get("/intelligence/users/{user_id}", response_model=MemberDetail)
+def admin_member_intelligence(
+    user_id: str,
+    year: int | None = None,
+    month: int | None = None,
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    detail = build_member_detail(db, user_id, year=year, month=month)
+    if not detail:
+        raise HTTPException(status_code=404, detail="User not found")
+    return detail
 
 
 @router.get("/users", response_model=list[UserSummary])
