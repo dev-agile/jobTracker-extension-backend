@@ -27,6 +27,7 @@ class ItemBase(BaseModel):
     status: Optional[str] = None
     salary: Optional[str] = None
     cover_letter: Optional[str] = None
+    connects: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -58,6 +59,7 @@ class ExtensionJobIn(BaseModel):
     projectLength: str | None = None
     url: str | None = None
     coverLetter: str | None = None
+    connects: str | None = None
     appliedAt: str | None = None
     posted: str | None = None
     status: str | None = "applied"

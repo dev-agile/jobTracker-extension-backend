@@ -49,6 +49,7 @@ def _to_extension_job(job: Jobs):
         "url": job.url,
         "posted": job.posted or "",
         "coverLetter": job.cover_letter or "",
+        "connects": job.connects or "",
         "appliedAt": job.applied_date,
         "status": (job.status or "applied").lower(),
     }
@@ -112,6 +113,7 @@ def create_job(
         applied_date=job.appliedAt or now,
         status=(job.status or "applied").lower(),
         cover_letter=job.coverLetter,
+        connects=job.connects,
         created_at=now,
         updated_at=now,
         source="extension",
