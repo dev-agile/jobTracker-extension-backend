@@ -49,7 +49,7 @@ class ExtensionJobIn(BaseModel):
     id: str | None = None
     userId: str | None = None
     jobTitle: str | None = None
-    company: str | None = None
+    role: str | None = None
     jobDetails: str | None = None
     skills: list[str] | None = None
     experienceLevel: str | None = None

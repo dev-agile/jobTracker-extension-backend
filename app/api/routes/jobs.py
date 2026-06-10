@@ -100,7 +100,7 @@ def create_job(
         id=job.id or f"ext-{uuid4().hex}",
         user_id=user_key,
         title=job.jobTitle,
-        role=job.company,
+        role=job.role,
         description=job.jobDetails,
         skills=job.skills,
         experience_level=job.experienceLevel,

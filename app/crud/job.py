@@ -1,8 +1,11 @@
+from collections import Counter
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..models import Jobs
+from .stackaliases import normalize_stack
 
 
 def get_jobs_by_user(db: Session, user_id: str):
@@ -150,3 +153,11 @@ def response_rate_pct(by_status: dict[str, int]) -> float:
 
 def build_pipeline(by_status: dict[str, int]) -> dict[str, int]:
     return {status: by_status.get(status, 0) for status in PIPELINE_STATUSES}
+
+def number_of_connects_used_by_user(db: Session, user_id: str) -> int:
+    jobs_per_user = get_jobs_for_user(db, user_id)
+    return sum(int(j.connects or 0) for j in jobs_per_user)
+
+def stacks_by_applied_jobs(jobs: list[Jobs]) -> dict[str, int]:
+    counts = Counter(normalize_stack(j.role) for j in jobs)
+    return dict(counts)

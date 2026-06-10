@@ -34,9 +34,11 @@ class UserSummary(BaseModel):
     last_login_at: Optional[datetime] = None
     total_jobs: int = 0
     jobs_by_status: dict[str, int] = Field(default_factory=dict)
+    stacks_by_applied_jobs: dict[str, int] = Field(default_factory=dict)
     applied_count: int = 0
     response_rate_pct: float = 0.0
     data_quality_pct: float = 0.0
+    number_of_connects_used_by_user: int = 0
 
 
 class AdminMetrics(BaseModel):
@@ -71,7 +73,7 @@ class JobDetailAdmin(BaseModel):
     user: Optional[JobUserContext] = None
     profile: Optional[str] = None
     jobTitle: Optional[str] = None
-    company: Optional[str] = None
+    role: Optional[str] = None
     jobDetails: Optional[str] = None
     skills: list[str] = Field(default_factory=list)
     experienceLevel: Optional[str] = None

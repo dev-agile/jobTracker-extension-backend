@@ -68,7 +68,9 @@ def build_admin_metrics(db: Session) -> AdminMetrics:
                 last_login_at=u.last_login_at,
                 total_jobs=jobs_per_user.get(u.id, 0),
                 jobs_by_status=by_status,
+                stacks_by_applied_jobs=job_crud.stacks_by_applied_jobs(user_jobs),
                 applied_count=by_status.get("applied", 0),
+                number_of_connects_used_by_user=job_crud.number_of_connects_used_by_user(db, u.id),
                 response_rate_pct=job_crud.response_rate_pct(by_status),
                 data_quality_pct=job_crud.data_quality_for_jobs(user_jobs),
             )
