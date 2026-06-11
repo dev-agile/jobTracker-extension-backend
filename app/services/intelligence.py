@@ -64,7 +64,7 @@ def _parse_connects(text: str | None) -> int:
 
 
 def _budget_tier(job: Jobs) -> str:
-    amount = _parse_money(job.fixed_price) or _parse_money(job.salary) or _parse_money(job.hourly_range)
+    amount = _parse_money(job.fixed_price) or _parse_money(job.hourly_range)
     if amount >= 10000:
         return "$10k+"
     if amount >= 2000:
@@ -77,8 +77,6 @@ def _budget_tier(job: Jobs) -> str:
 def _budget_label(job: Jobs) -> str:
     if job.fixed_price:
         return job.fixed_price
-    if job.salary:
-        return job.salary
     if job.hourly_range:
         return job.hourly_range
     if job.hourly:
@@ -327,7 +325,7 @@ def build_intelligence(db: Session, year: int | None = None, month: int | None =
     for kw, kj in kw_jobs.items():
         kf = _funnel_counts(kj)
         kt = len(kj) or 1
-        avg_b = sum(_parse_money(j.fixed_price or j.salary) for j in kj) / kt
+        avg_b = sum(_parse_money(j.fixed_price ) for j in kj) / kt
         win = _pct(kf[4].count, kt)
         tier = 1 if len(kj) >= 80 else 2 if len(kj) >= 50 else 3 if len(kj) >= 30 else 4
         keywords.append(
@@ -387,16 +385,14 @@ def build_intelligence(db: Session, year: int | None = None, month: int | None =
     budget_win = [SegItem(label=t, value=_pct(_funnel_counts(budget_groups[t])[4].count, len(budget_groups[t])), text=f"{_pct(_funnel_counts(budget_groups[t])[4].count, len(budget_groups[t]))}% win") for t in order if budget_groups[t]]
 
     country_groups: dict[str, list[Jobs]] = defaultdict(list)
-    for j in cur_jobs:
-        loc = (j.location or "Unknown").strip() or "Unknown"
-        country_groups[loc[:30]].append(j)
+
     country_reply = sorted(
         [SegItem(label=k, value=_pct(_funnel_counts(v)[2].count, len(v)), text=f"{_pct(_funnel_counts(v)[2].count, len(v))}% reply") for k, v in country_groups.items() if len(v) >= 2],
         key=lambda x: x.value,
         reverse=True,
     )[:6]
 
-    verified = [j for j in cur_jobs if j.profile and "payment" in (j.profile or "").lower()]
+    verified = [j for j in cur_jobs if j.role and "payment" in (j.role or "").lower()]
     quality_win = [
         SegItem(label="Has profile context", value=_pct(_funnel_counts(verified)[4].count, len(verified) or 1), text=f"{_pct(_funnel_counts(verified)[4].count, len(verified) or 1)}% win"),
         SegItem(label="All jobs", value=win_cur, text=f"{win_cur}% win"),
@@ -469,7 +465,6 @@ def build_intelligence(db: Session, year: int | None = None, month: int | None =
                 color=MEMBER_COLORS[users.index(u) % len(MEMBER_COLORS)] if u in users else "#7e8c85",
                 lane=_member_lane([j]),
                 budget=_budget_label(j),
-                location=j.location or "—",
                 status=label,
                 status_class=sc,
                 value=_budget_label(j) if _status(j) in WON else ("pending" if _status(j) == "interview" else "—"),
@@ -569,7 +564,7 @@ def build_member_detail(db: Session, user_id: str, year: int | None = None, mont
                 id=j.id,
                 title=j.title or "—",
                 keywords=list(j.skills or [])[:6],
-                client=j.role or j.location or "—",
+                client=j.role or "—",
                 budget=_budget_label(j),
                 applied=_parse_date(j.applied_date).strftime("%b %d") if _parse_date(j.applied_date) else "—",
                 status=_status(j),

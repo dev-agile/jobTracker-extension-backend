@@ -158,6 +158,9 @@ def number_of_connects_used_by_user(db: Session, user_id: str) -> int:
     jobs_per_user = get_jobs_for_user(db, user_id)
     return sum(int(j.connects or 0) for j in jobs_per_user)
 
+def total_connects_used(jobs: list[Jobs]) -> int:
+    return sum(int(j.connects or 0) for j in jobs)
+
 def stacks_by_applied_jobs(jobs: list[Jobs]) -> dict[str, int]:
     counts = Counter(normalize_stack(j.role) for j in jobs)
     return dict(counts)

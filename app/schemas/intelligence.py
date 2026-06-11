@@ -57,7 +57,6 @@ class ProposalRow(BaseModel):
     color: str
     lane: str
     budget: str
-    location: str
     status: str
     status_class: str
     value: str

@@ -28,6 +28,9 @@ def build_admin_metrics(db: Session) -> AdminMetrics:
     pipeline = job_crud.build_pipeline(global_status)
     data_quality_pct = job_crud.global_data_quality_pct(db)
     response_rate_pct = job_crud.response_rate_pct(global_status)
+    all_jobs = job_crud.get_all_jobs(db)
+    total_stacks = job_crud.stacks_by_applied_jobs(all_jobs)
+    total_connects_used = job_crud.total_connects_used(all_jobs)
 
     now = datetime.now(timezone.utc)
     week_ago = now - timedelta(days=7)
@@ -94,4 +97,6 @@ def build_admin_metrics(db: Session) -> AdminMetrics:
         jobs_by_source=jobs_by_source,
         pipeline=pipeline,
         users=summaries,
+        total_stacks=total_stacks,
+        total_connects_used=total_connects_used,
     )

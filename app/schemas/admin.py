@@ -57,6 +57,8 @@ class AdminMetrics(BaseModel):
     jobs_by_source: dict[str, int] = Field(default_factory=dict)
     pipeline: dict[str, int] = Field(default_factory=dict)
     users: list[UserSummary]
+    total_stacks: dict[str, int] = Field(default_factory=dict)
+    total_connects_used: int = 0
 
 
 class JobUserContext(BaseModel):
