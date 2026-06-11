@@ -36,7 +36,6 @@ def _to_extension_job(job: Jobs):
     return {
         "id": job.id,
         "userId": job.user_id,
-        "profile": job.profile or "",
         "jobTitle": job.title or "",
         "company": job.role or job.description or "",
         "jobDetails": job.description or "",
@@ -62,19 +61,6 @@ def read_my_jobs(
 ):
     jobs = job_crud.get_jobs_by_user(db, current_user.id)
     return [_to_extension_job(job) for job in jobs]
-
-
-@router.get("/jobs/{user_id}")
-def read_jobs_legacy_path(
-    user_id: str,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    if current_user.role != "admin" and current_user.id != user_id:
-        raise HTTPException(status_code=403, detail="Forbidden")
-    jobs = job_crud.get_jobs_by_user(db, user_id)
-    return [_to_extension_job(job) for job in jobs]
-
 
 @router.get("/allJobs")
 def read_all_jobs_admin(
@@ -130,7 +116,6 @@ def create_job(
 def update_job(
     job_id: str,
     updates: dict,
-    userId: str | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -152,7 +137,6 @@ def update_job(
 @router.delete("/jobs/{job_id}")
 def delete_job(
     job_id: str,
-    userId: str | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):

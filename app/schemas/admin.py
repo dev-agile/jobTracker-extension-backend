@@ -71,7 +71,6 @@ class JobDetailAdmin(BaseModel):
     id: str
     userId: Optional[str] = None
     user: Optional[JobUserContext] = None
-    profile: Optional[str] = None
     jobTitle: Optional[str] = None
     role: Optional[str] = None
     jobDetails: Optional[str] = None
@@ -80,17 +79,14 @@ class JobDetailAdmin(BaseModel):
     hourlyRange: Optional[str] = None
     hourly: Optional[str] = None
     projectLength: Optional[str] = None
-    hourlyRate: Optional[str] = None
     fixedPrice: Optional[str] = None
     coverLetter: Optional[str] = None
-    location: Optional[str] = None
     connects: Optional[str] = None
     source: Optional[str] = None
     url: Optional[str] = None
     posted: Optional[str] = None
     appliedAt: Optional[str] = None
     status: Optional[str] = None
-    salary: Optional[str] = None
     createdAt: Optional[str] = None
     updatedAt: Optional[str] = None
 
