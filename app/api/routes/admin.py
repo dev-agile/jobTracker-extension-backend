@@ -164,6 +164,13 @@ def list_invites(
     invites = user_crud.list_invites(db)
     return [_to_invite_out(i, db) for i in invites]
 
+@router.delete("/invites/{invite_id}", status_code=204)
+def delete_invite(invite_id: str, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    invite = user_crud.get_invite_by_id(db, invite_id)
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invite not found")
+    user_crud.delete_invite(db, invite_id)
+    return {"ok": True, "id": invite_id}
 
 @router.post("/invites", response_model=InviteOut, status_code=201)
 def create_invite(

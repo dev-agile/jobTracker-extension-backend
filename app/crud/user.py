@@ -113,3 +113,10 @@ def ensure_admin_user(db: Session, email: str, password: str) -> User:
             db.refresh(existing)
         return existing
     return create_user(db, email=email, password=password, role="admin", display_name="Admin")
+
+def get_invite_by_id(db: Session, invite_id: str) -> UserInvite | None:
+    return db.query(UserInvite).filter(UserInvite.id == invite_id).first()
+
+def delete_invite(db: Session, invite_id: str) -> None:
+    db.query(UserInvite).filter(UserInvite.id == invite_id).delete()
+    db.commit()
