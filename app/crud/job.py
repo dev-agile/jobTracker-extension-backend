@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..models import Jobs
-from .stackaliases import normalize_stack
+from .roleAliases import normalize_stack
 
 
 def get_jobs_by_user(db: Session, user_id: str):
