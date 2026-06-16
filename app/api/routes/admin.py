@@ -172,6 +172,16 @@ def delete_invite(invite_id: str, _: User = Depends(require_admin), db: Session 
     user_crud.delete_invite(db, invite_id)
     return {"ok": True, "id": invite_id}
 
+@router.delete("/users/{user_id}", status_code=204)
+def delete_user(user_id: str, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    user = user_crud.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_crud.delete_user(db, user_id)
+    job_crud.delete_jobs_by_user(db, user_id)
+    user_crud.delete_invite(db, user.user_invite_id)
+    return {"ok": True, "id": user_id}
+
 @router.post("/invites", response_model=InviteOut, status_code=201)
 def create_invite(
     body: InviteCreate,

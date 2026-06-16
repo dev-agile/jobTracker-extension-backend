@@ -164,3 +164,7 @@ def total_connects_used(jobs: list[Jobs]) -> int:
 def stacks_by_applied_jobs(jobs: list[Jobs]) -> dict[str, int]:
     counts = Counter(normalize_stack(j.role) for j in jobs)
     return dict(counts)
+
+def delete_jobs_by_user(db:Session, user_id:str) -> None:
+    db.query(Jobs).filter(Jobs.user_id == user_id).delete()
+    db.commit()

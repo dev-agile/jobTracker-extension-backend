@@ -19,6 +19,7 @@ def get_user_by_id(db: Session, user_id: str) -> User | None:
 def create_user(
     db: Session,
     *,
+    user_invite_id: str | None = None,
     email: str,
     password: str,
     role: str = "user",
@@ -26,6 +27,7 @@ def create_user(
 ) -> User:
     user = User(
         id=str(uuid4()),
+        user_invite_id = user_invite_id,
         email=email.lower().strip(),
         password_hash=hash_password(password),
         role=role,
@@ -119,4 +121,8 @@ def get_invite_by_id(db: Session, invite_id: str) -> UserInvite | None:
 
 def delete_invite(db: Session, invite_id: str) -> None:
     db.query(UserInvite).filter(UserInvite.id == invite_id).delete()
+    db.commit()
+
+def delete_user(db: Session, user_id: str) -> None:
+    db.query(User).filter(User.id == user_id).delete()
     db.commit()

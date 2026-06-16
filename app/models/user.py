@@ -8,6 +8,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, index=True)
+    user_invite_id = Column(String, unique=True, nullable=True)
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
     role = Column(String, nullable=False, default="user")  # user | admin

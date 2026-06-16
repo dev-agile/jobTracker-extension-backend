@@ -63,6 +63,7 @@ def accept_invite(body: AcceptInviteRequest, db: Session = Depends(get_db)):
 
     user = user_crud.create_user(
         db,
+        user_invite_id=invite.id,
         email=invite.email,
         password=body.password,
         role="user",
