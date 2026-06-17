@@ -8,9 +8,12 @@ from ...api.deps import require_admin
 from ...core.config import get_settings
 from ...crud import job as job_crud
 from ...crud import user as user_crud
+from ...crud import activity as activity_crud
+
 from ...database import get_db
 from ...models import Jobs, User, UserInvite
 from ...schemas.admin import (
+    ActivityOut,
     AdminMetrics,
     InviteCreate,
     InviteOut,
@@ -177,9 +180,11 @@ def delete_user(user_id: str, _: User = Depends(require_admin), db: Session = De
     user = user_crud.get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    activity_crud.delete_activity_by_user(db, user_id)
+    user_crud.delete_invite(db, user.user_invite_id)
     user_crud.delete_user(db, user_id)
     job_crud.delete_jobs_by_user(db, user_id)
-    user_crud.delete_invite(db, user.user_invite_id)
+
     return {"ok": True, "id": user_id}
 
 @router.post("/invites", response_model=InviteOut, status_code=201)
@@ -203,3 +208,10 @@ def create_invite(
         expires_at=expires_at,
     )
     return _to_invite_out(invite, db)
+
+@router.get("/recent-activity", response_model=list[ActivityOut])
+def recent_activity(
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return activity_crud.get_recent_activity(db)

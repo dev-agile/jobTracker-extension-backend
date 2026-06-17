@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-
+from ..models.activity import ActivityType
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -101,3 +101,15 @@ class JobOutAdmin(BaseModel):
     status: Optional[str] = None
     appliedAt: Optional[str] = None
     url: Optional[str] = None
+
+
+class ActivityOut(BaseModel):
+    id: str
+    type: ActivityType
+    actor_display_name: Optional[str] = None
+    message: Optional[str] = None
+    created_at: datetime
+    metadata: Optional[dict] = Field(default=None, validation_alias="activity_metadata")
+
+    class Config:
+        from_attributes = True

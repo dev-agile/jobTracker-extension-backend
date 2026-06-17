@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 from ...core.config import get_settings
 from ...core.security import create_access_token
 from ...crud import user as user_crud
+from ...crud import activity as activity_crud
 from ...database import get_db
 from ...schemas.auth import AcceptInviteRequest, LoginRequest, TokenResponse, UserOut
 from ..deps import get_current_user
-from ...models import User
+from ...models import ActivityType, User
+
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -23,6 +25,13 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
         )
     token = create_access_token(user.id, user.role)
+    activity_crud.log_activity(
+        db,
+        type=ActivityType.LOGIN,
+        actor_display_name=user.display_name,
+        message=f"{user.display_name} logged in successfully",
+        actor_user_id=user.id,
+    )
     return TokenResponse(
         access_token=token,
         user=UserOut(

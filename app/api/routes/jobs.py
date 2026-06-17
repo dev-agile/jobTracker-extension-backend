@@ -10,6 +10,8 @@ from ...api.deps import get_current_user, require_admin
 from ...crud import job as job_crud
 from ...database import get_db
 from ...models import Jobs, User
+from ...crud import activity as activity_crud
+from ...models.activity import ActivityType
 
 router = APIRouter(prefix="/api", tags=["jobs"])
 
@@ -109,6 +111,14 @@ def create_job(
         raise HTTPException(status_code=409, detail="Job already exists for this user")
 
     created = job_crud.create_job(db, db_job)
+
+    activity_crud.log_activity(
+        db, type=ActivityType.JOB_CREATED,
+        actor_display_name=current_user.display_name,
+        message=f"{current_user.display_name} created a new job: {created.title} with the role of {created.role}", 
+        actor_user_id=current_user.id, 
+        job_id=created.id,
+    )
     return _to_extension_job(created)
 
 
@@ -120,6 +130,7 @@ def update_job(
     db: Session = Depends(get_db),
 ):
     existing_job = job_crud.get_job_by_id(db, job_id)
+    previous_status = existing_job.status
     if not existing_job:
         raise HTTPException(status_code=404, detail="Job not found")
     if current_user.role != "admin" and existing_job.user_id != current_user.id:
@@ -130,6 +141,19 @@ def update_job(
         db,
         existing_job,
         {"status": next_status, "updated_at": datetime.now(timezone.utc).isoformat()},
+    )
+
+    activity_crud.log_activity(
+        db,
+        type=ActivityType.JOB_UPDATED,
+        actor_display_name=current_user.display_name,
+        message=f"{current_user.display_name} updated the job: {existing_job.title} from {previous_status} to {next_status}",
+        actor_user_id=current_user.id,
+        job_id=updated.id,
+        metadata={
+            "previous_status": existing_job.status,
+            "new_status": next_status,
+        },
     )
     return _to_extension_job(updated)
 
