@@ -42,6 +42,26 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         ),
     )
 
+@router.post("/logout", response_model=dict)
+def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if(current_user.role == "admin"):
+            activity_crud.log_activity(
+            db,
+            type=ActivityType.LOGOUT,
+            actor_display_name=current_user.display_name,
+            message=f"{current_user.display_name} (admin) logged out successfully",
+            actor_user_id=current_user.id,
+            )
+    elif(current_user.role == "user"):
+            activity_crud.log_activity(
+                db,
+                type=ActivityType.LOGOUT,
+                actor_display_name=current_user.display_name,
+                message=f"{current_user.display_name} (user) logged out successfully",
+                actor_user_id=current_user.id,
+            )
+    return {"message": "Logged out successfully"}
+
 
 @router.get("/me", response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)):
