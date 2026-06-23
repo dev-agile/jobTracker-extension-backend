@@ -20,6 +20,7 @@ from ...schemas.admin import (
     JobDetailAdmin,
     JobOutAdmin,
     JobUserContext,
+    LeaderBoardUser,
     UserSummary,
 )
 from ...services.metrics import build_admin_metrics
@@ -130,7 +131,7 @@ def admin_list_users(
     return metrics.users
 
 
-@router.get("/users/{user_id}/jobs")
+@router.get("/users/{user_id}/jobs", response_model=list[JobOutAdmin])
 def admin_user_jobs(
     user_id: str,
     _: User = Depends(require_admin),
@@ -215,3 +216,39 @@ def recent_activity(
     db: Session = Depends(get_db),
 ):
     return activity_crud.get_recent_activity(db)
+
+@router.get("/leaderboard", response_model=list[LeaderBoardUser])
+def leaderboard(
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    users = user_crud.list_users(db)
+    jobs_per_user = job_crud.count_jobs_by_user(db)
+    leaderboard: list[LeaderBoardUser] = []
+    for user in users:
+        if user.role == "user":
+            total_jobs = jobs_per_user.get(user.id, 0)
+            jobs_by_status = job_crud.count_jobs_by_user_and_status(db, user.id)
+
+            interview_count = jobs_by_status.get("interview", 0)
+            offer_count = jobs_by_status.get("offer", 0)
+            rejected_count = jobs_by_status.get("rejected", 0)
+
+            response_rate = (interview_count + offer_count + rejected_count) / total_jobs if total_jobs > 0 else 0
+            response_rate = round(response_rate * 100, 1)
+            leaderboard.append(LeaderBoardUser(
+                id=user.id, 
+                email=user.email, 
+                display_name=user.display_name, 
+                role=user.role,
+                total_jobs=total_jobs,
+                interview_count=interview_count,
+                offer_count=offer_count,
+                rejected_count=rejected_count,
+                response_rate=response_rate,
+            ))
+            leaderboard.sort(
+                key=lambda u: (u.response_rate, u.total_jobs),
+                reverse=True,
+            )
+    return leaderboard  

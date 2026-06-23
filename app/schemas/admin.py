@@ -113,3 +113,15 @@ class ActivityOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class LeaderBoardUser(BaseModel):
+    id: str
+    email: EmailStr
+    display_name: Optional[str] = None
+    role: str = "user"
+    interview_count: int = 0
+    offer_count: int = 0
+    rejected_count: int = 0
+    total_jobs: int = 0
+    response_rate: float = 0.0
+
