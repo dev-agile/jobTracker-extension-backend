@@ -37,3 +37,7 @@ def get_recent_activity(db: Session) -> list[Activity]:
 def delete_activity_by_user(db: Session, user_id: str):
     db.query(Activity).filter(Activity.actor_user_id == user_id).delete()
     db.commit()
+
+def delete_activity_by_job(db: Session, job_id: str):
+    db.query(Activity).filter(Activity.job_id == job_id).delete()
+    db.commit()

@@ -252,3 +252,12 @@ def leaderboard(
                 reverse=True,
             )
     return leaderboard  
+
+@router.delete("/jobs/{job_id}", status_code=200)
+def delete_job(job_id: str, _: User = Depends(require_admin), db: Session = Depends(get_db)):
+    job = job_crud.get_job_by_id(db, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    activity_crud.delete_activity_by_job(db, job.id)
+    job_crud.delete_job(db, job_id)
+    return {"ok": True, "id": job_id}
