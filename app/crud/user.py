@@ -24,7 +24,6 @@ def create_user(
     password: str,
     role: str = "user",
     display_name: str | None = None,
-    last_login_at: datetime,
 ) -> User:
     user = User(
         id=str(uuid4()),
@@ -33,7 +32,7 @@ def create_user(
         password_hash=hash_password(password),
         role=role,
         display_name=display_name,
-        last_login_at=last_login_at,
+        last_login_at=datetime.now(timezone.utc),
         is_active=True,
     )
     db.add(user)

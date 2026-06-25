@@ -97,7 +97,6 @@ def accept_invite(body: AcceptInviteRequest, db: Session = Depends(get_db)):
         password=body.password,
         role="user",
         display_name=body.display_name,
-        last_login_at=now,
     )
     user_crud.mark_invite_accepted(db, invite)
     token = create_access_token(user.id, user.role)
