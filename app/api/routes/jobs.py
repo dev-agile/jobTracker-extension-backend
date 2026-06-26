@@ -39,7 +39,7 @@ def _to_extension_job(job: Jobs):
         "id": job.id,
         "userId": job.user_id,
         "jobTitle": job.title or "",
-        "company": job.role or job.description or "",
+        "role": job.role or job.description or "",
         "jobDetails": job.description or "",
         "skills": job.skills or [],
         "experienceLevel": job.experience_level or "",
@@ -63,15 +63,6 @@ def read_my_jobs(
 ):
     jobs = job_crud.get_jobs_by_user(db, current_user.id)
     return [_to_extension_job(job) for job in jobs]
-
-@router.get("/allJobs")
-def read_all_jobs_admin(
-    _: User = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    jobs = job_crud.get_all_jobs(db)
-    return [_to_extension_job(job) for job in jobs]
-
 
 @router.post("/jobs")
 def create_job(

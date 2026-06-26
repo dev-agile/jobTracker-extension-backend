@@ -60,10 +60,20 @@ def _to_invite_out(invite: UserInvite, db: Session) -> InviteOut:
     )
 
 
-def _to_extension_job(job: Jobs) -> dict:
+def _to_extension_job(job: Jobs, user: User | None = None) -> JobOutAdmin:
+    user_ctx = None
+    if user:
+        user_ctx = JobUserContext(
+            id=user.id,
+            email=user.email,
+            display_name=user.display_name,
+            is_active=user.is_active,
+            last_login_at=user.last_login_at,
+        )
     return {
         "id": job.id,
         "userId": job.user_id,
+        "user": user_ctx,
         "jobTitle": job.title or "",
         "role": job.role or job.description or "",
         "jobDetails": job.description or "",
@@ -121,6 +131,17 @@ def admin_metrics(
 ):
     return build_admin_metrics(db)
 
+@router.get("/allJobs")
+def read_all_jobs_admin(
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    jobs = job_crud.get_all_jobs(db)
+    job_with_user: list[JobOutAdmin] = []
+    for job in jobs:
+        user = user_crud.get_user_by_id(db, job.user_id) if job.user_id else None
+        job_with_user.append(_to_extension_job(job, user))
+    return job_with_user
 
 @router.get("/users", response_model=list[UserSummary])
 def admin_list_users(
