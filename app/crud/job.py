@@ -120,17 +120,48 @@ def _job_is_complete(job: Jobs) -> bool:
     title = (job.title or "").strip()
     url = (job.url or "").strip()
     applied = (job.applied_date or "").strip()
-    return len(title) >= 3 and bool(url) and bool(applied)
+    description = (job.description or "").strip()
+    skills = (job.skills or [])
+    cover_letter = (job.cover_letter or "").strip()
+    connects = int(job.connects or 0)
+
+    return len(title) >= 3 and bool(url) and bool(applied) and len(description) >= 10 and len(skills) >= 2 and len(cover_letter) >= 10 and connects >= 1
+
+def data_missing_for_jobs(db: Session, user_id: str) -> list[str]:
+    missing: set[str] = set()
+    user_jobs = get_jobs_for_user(db, user_id)
+    for job in user_jobs:
+        if not _job_is_complete(job):
+            missing.update(check_missing_data(job))
+    return sorted(missing)
 
 
-def data_quality_for_jobs(jobs: list[Jobs]) -> float:
+def check_missing_data(job: Jobs) -> list[str]:
+    missing: list[str] = []
+    if len((job.title or "").strip()) < 3:
+        missing.append("title")
+    if not (job.url or "").strip():
+        missing.append("url")
+    if not (job.applied_date or "").strip():
+        missing.append("applied date")
+    if len((job.description or "").strip()) < 10:
+        missing.append("description")
+    if len(job.skills or []) < 2:
+        missing.append("skills")
+    if len((job.cover_letter or "").strip()) < 10:
+        missing.append("cover letter")
+    if int(job.connects or 0) < 1:
+        missing.append("connects")
+    return missing
+
+def data_quality_for_jobs(jobs: list[Jobs]) -> float | None:
     if not jobs:
-        return 100.0
+        return None
     complete = sum(1 for job in jobs if _job_is_complete(job))
     return round(complete / len(jobs) * 100, 1)
 
 
-def global_data_quality_pct(db: Session) -> float:
+def global_data_quality_pct(db: Session) -> float | None:
     jobs = db.query(Jobs).all()
     return data_quality_for_jobs(jobs)
 

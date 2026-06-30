@@ -60,6 +60,7 @@ def build_admin_metrics(db: Session) -> AdminMetrics:
     for u in end_users:
         by_status = job_crud.count_jobs_by_user_and_status(db, u.id)
         user_jobs = job_crud.get_jobs_for_user(db, u.id)
+
         summaries.append(
             UserSummary(
                 id=u.id,
@@ -76,6 +77,7 @@ def build_admin_metrics(db: Session) -> AdminMetrics:
                 number_of_connects_used_by_user=job_crud.number_of_connects_used_by_user(db, u.id),
                 response_rate_pct=job_crud.response_rate_pct(by_status),
                 data_quality_pct=job_crud.data_quality_for_jobs(user_jobs),
+                data_missing=job_crud.data_missing_for_jobs(db, u.id),
             )
         )
 

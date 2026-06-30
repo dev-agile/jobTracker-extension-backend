@@ -37,8 +37,9 @@ class UserSummary(BaseModel):
     stacks_by_applied_jobs: dict[str, int] = Field(default_factory=dict)
     applied_count: int = 0
     response_rate_pct: float = 0.0
-    data_quality_pct: float = 0.0
+    data_quality_pct: float | None = None
     number_of_connects_used_by_user: int = 0
+    data_missing: list[str] = Field(default_factory=list)
 
 
 class AdminMetrics(BaseModel):
@@ -51,7 +52,7 @@ class AdminMetrics(BaseModel):
     dormant_users: int = 0
     users_with_jobs: int = 0
     avg_jobs_per_user: float = 0.0
-    data_quality_pct: float = 0.0
+    data_quality_pct: float | None = None
     response_rate_pct: float = 0.0
     jobs_by_status: dict[str, int]
     jobs_by_source: dict[str, int] = Field(default_factory=dict)
