@@ -102,6 +102,7 @@ class JobOutAdmin(BaseModel):
     status: Optional[str] = None
     appliedAt: Optional[str] = None
     url: Optional[str] = None
+    issues: list[str] = Field(default_factory=list)
 
 
 class ActivityOut(BaseModel):

@@ -70,6 +70,8 @@ def _to_extension_job(job: Jobs, user: User | None = None) -> JobOutAdmin:
             is_active=user.is_active,
             last_login_at=user.last_login_at,
         )
+    issues = job_crud.check_missing_data(job)
+    print(issues)
     return {
         "id": job.id,
         "userId": job.user_id,
@@ -86,6 +88,7 @@ def _to_extension_job(job: Jobs, user: User | None = None) -> JobOutAdmin:
         "posted": job.posted or "",
         "appliedAt": job.applied_date,
         "status": (job.status or "applied").lower(),
+        "issues": issues or [],
     }
 
 
