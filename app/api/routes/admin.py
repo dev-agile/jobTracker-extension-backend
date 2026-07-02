@@ -71,7 +71,6 @@ def _to_extension_job(job: Jobs, user: User | None = None) -> JobOutAdmin:
             last_login_at=user.last_login_at,
         )
     issues = job_crud.check_missing_data(job)
-    print(issues)
     return {
         "id": job.id,
         "userId": job.user_id,

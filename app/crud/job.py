@@ -146,7 +146,7 @@ def check_missing_data(job: Jobs) -> list[str]:
         missing.append("applied date")
     if len((job.description or "").strip()) < 10:
         missing.append("description")
-    if len(job.skills or []) < 2:
+    if len(job.skills or []) <= 0:
         missing.append("skills")
     if len((job.cover_letter or "").strip()) < 10:
         missing.append("cover letter")
