@@ -1,4 +1,4 @@
-from sqlalchemy import ARRAY, Column, String
+from sqlalchemy import ARRAY, Column, ForeignKey, String
 
 from ..database import Base
 
@@ -6,8 +6,8 @@ from ..database import Base
 class Jobs(Base):
     __tablename__ = "jobbs"
 
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, nullable=True)
+    id = Column(String, primary_key=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     title = Column(String, nullable=True)
     role = Column(String, nullable=True)
     posted = Column(String, nullable=True)

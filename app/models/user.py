@@ -7,9 +7,9 @@ from ..database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True)
     user_invite_id = Column(String, unique=True, nullable=True)
-    email = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
     role = Column(String, nullable=False, default="user")  # user | admin
     display_name = Column(String, nullable=True)
@@ -23,10 +23,10 @@ class User(Base):
 class UserInvite(Base):
     __tablename__ = "user_invites"
 
-    id = Column(String, primary_key=True, index=True)
-    email = Column(String, nullable=False, index=True)
-    token = Column(String, unique=True, nullable=False, index=True)
-    invited_by_id = Column(String, ForeignKey("users.id"), nullable=False)
+    id = Column(String, primary_key=True)
+    email = Column(String, nullable=False, unique=True)
+    token = Column(String, unique=True, nullable=False)
+    invited_by_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     accepted_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
