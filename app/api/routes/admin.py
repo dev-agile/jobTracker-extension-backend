@@ -205,7 +205,8 @@ def delete_user(user_id: str, _: User = Depends(require_admin), db: Session = De
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     activity_crud.delete_activity_by_user(db, user_id)
-    user_crud.delete_invite(db, user.user_invite_id)
+    if user.user_invite_id:
+        user_crud.delete_invite(db, user.user_invite_id)
     job_crud.delete_jobs_by_user(db, user_id)
     user_crud.delete_user(db, user_id)
 

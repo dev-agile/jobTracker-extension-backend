@@ -28,7 +28,7 @@ class Activity(Base):
     actor_display_name = Column(String, nullable=True)
     actor_user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     job_id = Column(String, ForeignKey("jobbs.id"), nullable=True)
-    user_invite_id = Column(String, ForeignKey("user_invites.id"), nullable=False, index=True)
+    user_invite_id = Column(String, ForeignKey("user_invites.id"), nullable=True, index=True)
     message = Column(String, nullable=True)
     activity_metadata = Column("metadata", JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

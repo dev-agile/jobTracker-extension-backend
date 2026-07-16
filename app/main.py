@@ -1,14 +1,22 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api.routes import api_router
 from .core.config import get_settings
-from .database import Base, engine
 from .startup import seed_admin
 
 settings = get_settings()
 
-app = FastAPI(title="Job Tracker API")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    seed_admin()
+    yield
+
+
+app = FastAPI(title="Job Tracker API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,8 +25,5 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-Base.metadata.create_all(bind=engine)
-seed_admin()
 
 app.include_router(api_router)

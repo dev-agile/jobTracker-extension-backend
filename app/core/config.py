@@ -1,15 +1,18 @@
 import os
 from functools import lru_cache
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(".env.example")
+# Project root: jobTracker-extension-backend/
+_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_ROOT / ".env")
 
 
 class Settings:
     database_url: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://priyanshu:mypassword123@localhost:5432/jobtracker",
+        "postgresql://localhost:5432/jobtracker",
     )
     jwt_secret: str = os.getenv("JWT_SECRET", "change-me-in-production-use-long-random-string")
     jwt_algorithm: str = "HS256"

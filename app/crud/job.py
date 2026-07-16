@@ -116,6 +116,15 @@ def count_jobs_by_source(db: Session) -> dict[str, int]:
     return result
 
 
+def _parse_connects(value) -> int:
+    if value is None:
+        return 0
+    try:
+        return int(str(value).strip().split("-")[0].strip() or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def _job_is_complete(job: Jobs) -> bool:
     title = (job.title or "").strip()
     url = (job.url or "").strip()
@@ -123,7 +132,7 @@ def _job_is_complete(job: Jobs) -> bool:
     description = (job.description or "").strip()
     skills = (job.skills or [])
     cover_letter = (job.cover_letter or "").strip()
-    connects = int(job.connects or 0)
+    connects = _parse_connects(job.connects)
 
     return len(title) >= 3 and bool(url) and bool(applied) and len(description) >= 10 and len(skills) >= 2 and len(cover_letter) >= 10 and connects >= 1
 
@@ -150,7 +159,7 @@ def check_missing_data(job: Jobs) -> list[str]:
         missing.append("skills")
     if len((job.cover_letter or "").strip()) < 10:
         missing.append("cover letter")
-    if int(job.connects or 0) < 1:
+    if _parse_connects(job.connects) < 1:
         missing.append("connects")
     return missing
 
@@ -187,10 +196,10 @@ def build_pipeline(by_status: dict[str, int]) -> dict[str, int]:
 
 def number_of_connects_used_by_user(db: Session, user_id: str) -> int:
     jobs_per_user = get_jobs_for_user(db, user_id)
-    return sum(int(j.connects or 0) for j in jobs_per_user)
+    return sum(_parse_connects(j.connects) for j in jobs_per_user)
 
 def total_connects_used(jobs: list[Jobs]) -> int:
-    return sum(int(j.connects or 0) for j in jobs)
+    return sum(_parse_connects(j.connects) for j in jobs)
 
 def stacks_by_applied_jobs(jobs: list[Jobs]) -> dict[str, int]:
     counts = Counter(normalize_stack(j.role) for j in jobs)

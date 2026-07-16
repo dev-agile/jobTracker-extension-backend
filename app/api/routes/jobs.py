@@ -121,12 +121,12 @@ def update_job(
     db: Session = Depends(get_db),
 ):
     existing_job = job_crud.get_job_by_id(db, job_id)
-    previous_status = existing_job.status
     if not existing_job:
         raise HTTPException(status_code=404, detail="Job not found")
     if current_user.role != "admin" and existing_job.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden for this user")
 
+    previous_status = existing_job.status
     next_status = (updates.get("status") or existing_job.status or "applied").lower()
     updated = job_crud.update_job(
         db,
@@ -142,7 +142,7 @@ def update_job(
         actor_user_id=current_user.id,
         job_id=updated.id,
         metadata={
-            "previous_status": existing_job.status,
+            "previous_status": previous_status,
             "new_status": next_status,
         },
     )
