@@ -161,5 +161,6 @@ def delete_job(
     if current_user.role != "admin" and existing_job.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden for this user")
 
+    activity_crud.delete_activity_by_job(db, existing_job.id)
     job_crud.delete_job(db, job_id)
     return {"ok": True, "id": job_id}
